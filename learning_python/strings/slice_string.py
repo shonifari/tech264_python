@@ -31,4 +31,4 @@ print(Hw[-3:])
 print(Hw[:5])
 
 # Starts from the second, stops at the fifth (doesn't include it)
-
+print(Hw[1:5])
