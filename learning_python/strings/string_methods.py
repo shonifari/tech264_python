@@ -1,15 +1,4 @@
-# Trim
-# spaces
-# off
-# the
-# beginning and end
-# of
-# a
-# string:
-# Starting
-# code:
-#
-# ```
+
 
 str_with_extra_spaces = "   extra spaces at the start and end   "
 
@@ -18,18 +7,7 @@ str_with_extra_spaces = "   extra spaces at the start and end   "
 print(len(str_with_extra_spaces))
 
 # Write comment to explain what this does
-
 print(len(str_with_extra_spaces.strip()))
-
-
-#
-# Next, use
-# this
-# new
-# starting
-# code
-# for the next set of subtasks.Write code to do what the comments ask for.
-# ```
 
 
 example_text = "here's some text with some words of text"
@@ -51,5 +29,5 @@ capitalized_text = example_text.capitalize()
 print(f"Capitalized: {capitalized_text}")
 
 # Replace the word 'with' in example_text with a comma (,) instead & print it to the screen
-replaced_text = example_text.replace('with', ',')
+replaced_text = example_text.replace(' with', ',')
 print(f"Replaced: {replaced_text}")
