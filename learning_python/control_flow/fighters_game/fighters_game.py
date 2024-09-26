@@ -211,7 +211,7 @@ def new_game():
                 print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
                 sleep(0.8)
 
-                
+
             else:
                 # Choose attack
                 choosen_attack = choose_attack(players[current_player])
