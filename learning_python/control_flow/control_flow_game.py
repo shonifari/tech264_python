@@ -204,11 +204,14 @@ def new_game():
             sleep(0.3)
 
             if not is_player_2 and current_player == 1:
-
+                sleep(0.5)
                 available_attacks = [ atts for atts in players[current_player].get("attacks") if not atts.get('used')]
 
                 choosen_attack = choice(available_attacks)
                 print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
+                sleep(0.8)
+
+                
             else:
                 # Choose attack
                 choosen_attack = choose_attack(players[current_player])
