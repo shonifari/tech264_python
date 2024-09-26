@@ -20,51 +20,59 @@
 from random import  randint, choice
 from time import  sleep
 
-fighters_name = ["A", "B","C","D"]
-attacks_names = ["1","2","3","4"]
-
+# Define fighters
+fighters_names = ["🧝 ELf", "🥷 Ninja", "🧛 Vampire", "🧙 Wizard"]
+attacks_names = ["🗡️","🪄","🪓","🏹"]
+life = 75
 
 def yes_no_question(question):
     output = None
     while output is None:
         answer = input(f"{question} y/n: ")
         if answer.lower() not in ["y", "n"]:
-            print("Respond only with y (Yes) or n (No)")
+            print("⚠️ Respond only with y (Yes) or n (No)")
             sleep(0.8)
             continue
 
         output = True if answer.lower() == "y" else False
     return  output
 
-
-
-
+# NEW GAME
 def new_game():
 
-    FIGHTERS = []
+    fighters = []
 
-    for i, name in enumerate(fighters_name):
-        FIGHTERS.append(
+    for i, name in enumerate(fighters_names):
+        fighters.append(
             {
                 "id": i,
                 "name": name,
-                "life": 10,
+                "life": life,
                 "attacks": [{
                         "name": att_name,
                         "power": randint(10, 16)
+
                     } for att_name in attacks_names
                 ]
             }
             )
 
+
+
     # If Player 2, let them pick the character/fighter they want. If CPU, assign a character/fighter randomly.
     def print_fighters():
         print("SELECT A FIGHTER:")
-        for fighter in FIGHTERS:
+        for fighter in fighters:
             avg_attack = sum([att.get("power") for att in fighter.get("attacks")]) / len(fighter.get("attacks"))
 
-            print(
-                f"{fighter.get('id')}. {fighter.get('name').upper()}\n  - Avg att: {avg_attack:.2f}\n  - Life: {fighter.get('life')}")
+            spaces = sorted([len(f.get('name')) for f in fighters])[-1]
+            spaces -= len(fighter.get('name'))
+
+            fighter_string = f"{fighter.get('id')}. {fighter.get('name').upper()} "
+            fighter_string += " "*spaces
+            fighter_string +=   f"|  🗡️ Avg att: {avg_attack:.2f} - 🛡️ Life: {fighter.get('life')}"
+
+            print(fighter_string)
 
     def select_character():
         choice = None
@@ -73,62 +81,59 @@ def new_game():
 
             print_fighters()
 
-            choice = input("Select a fighter by typing its id: ")
+            choice = input("\n🎮 Select a fighter by typing its id: ")
             if not choice.isdigit():
-                print("\nERROR: To select a fighter type it's id.\n")
+                print("\n⚠️ ERROR: To select a fighter type it's id.\n")
                 sleep(0.8)
                 continue
 
             choice = int(choice)
 
-            if choice < 0 or choice not in [f.get('id') for f in FIGHTERS]:
+            if choice not in [f.get('id') for f in fighters]:
                 print(
-                    f"\nERROR: The id you selected ({choice}) is not part of the ids ({','.join([str(f.get('id')) for f in FIGHTERS])})\n")
+                    f"\n⚠️ ERROR: The id you selected ({choice}) is not part of the ids ({','.join([str(f.get('id')) for f in fighters])})\n")
                 sleep(0.8)
                 continue
 
             valid = True
-        fighter = [f for f in FIGHTERS if f.get('id') == choice][0]
-        print(f"You have selected {fighter.get('name')}")
+
+        fighter = [f for f in fighters if f.get('id') == choice][0]
+        print(f"💠 You have selected {fighter.get('name')}")
         return fighter
+
+
+
+
 
     players = []
 
 
     # CHARACHTER SELECTION
     p1_character = select_character()
-    players.append(
-        p1_character
-    )
-    FIGHTERS.remove(p1_character)
+    players.append(p1_character)
+    fighters.remove(p1_character)
 
 
+    # Check for player 2
+    is_player_2 = yes_no_question("\n🎮 Add player to the game?")
 
 
-
-    is_player_2 = yes_no_question("Add player to the game?")
-    p2_character = None
     if is_player_2:
-        players.append(
-            select_character()
-        )
+        players.append(select_character())
     else:
-        players.append(
-            choice(FIGHTERS)
-        )
+        players.append(choice(fighters))
 
 
 
     print(f"\n\nThe fight will be between:\n\t{players[0].get('name')} VS {players[1].get('name')}")
 
-    if yes_no_question("Start fight?") == False:
-        print("Start the program over.")
+    if yes_no_question("\n🔔 Ready to start the fight?") == False:
         return
 
     for i in range(0,5):
         print(f"{5-i}...")
         sleep(1)
-    print("FIGHT!!!")
+    print("🤜 FIGHT 🤛")
 
 
 
@@ -136,12 +141,12 @@ def new_game():
 
 
     def print_life():
-        string = f"{players[0].get('name')} - {players[0].get('life')}/100\t"
-        string += f"{players[1].get('name')} - {players[1].get('life')}/100\n"
+        string = f"{players[0].get('name')} - {players[0].get('life')}/{life} 🛡️\t"
+        string += f" 🛡️ {players[1].get('life')}/{life} - {players[1].get('name')}\n"
         print(string)
 
     def throw_dice():
-        return randint(1,10)
+        return randint(1,12)
 
     def print_attacks(fighter):
         for i, att in enumerate(fighter.get("attacks")):
@@ -168,54 +173,85 @@ def new_game():
 
     while not is_gameover:
         round += 1
+        print('_'*25)
         print(f"ROUND {round}")
         sleep(0.5)
 
         for i in range(0,len(players)):
             # Show current status
             print_life()
-
+            sleep(0.8)
             current_player = i
             defending_player = 1 if i == 0 else 0
 
-            current_fighter = FIGHTERS[current_player]
-            defending_fighter = FIGHTERS[defending_player]
 
-            print(f"Its player {current_player + 1} turn to attack.")
+            print(f"Its {players[current_player].get('name')} (P{current_player + 1}) turn to attack.")
             sleep(0.3)
 
-            # Choose attack
+            if not is_player_2 and current_player == 1:
+                choosen_attack = choice(players[current_player].get("attacks"))
+                print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
+            else:
+                # Choose attack
+                choosen_attack = choose_attack(players[current_player])
+                print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
 
-            choosen_attack = choose_attack(current_fighter)
-            print(f"{current_fighter.get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
+                # Roll dice
+                input("🎲 Press enter to roll dice")
 
-            input("Press enter to roll dice")
             dice_result = throw_dice()
-            print(f"{current_fighter.get('name')} rolled {dice_result}.")
+            print(f"{players[current_player].get('name')} rolled 🎲 {dice_result}.")
             sleep(0.2)
             att_power = choosen_attack.get('power') * dice_result // 12
-            print(f"{current_fighter.get('name')} attack power is now: {att_power}")
+            is_power_higher = False
+            print(f"{players[current_player].get('name')} attack power {'increased' if is_power_higher else 'decreased'} and its now: {att_power} {'📈' if is_power_higher else '📉'}")
+
             print('\n')
-            sleep(0.5)
+            sleep(0.7)
 
 
-            print(f"{defending_fighter.get('name')} was hit with a powerful attack")
-            print(f"{defending_fighter.get('life')} --> {defending_fighter.get('life') - att_power}")
+            print("💥")
+            sleep(0.8)
+            print(f"{players[defending_player].get('name')} was hit with a powerful attack")
+            sleep(0.8)
+
+
+
+
+            if players[defending_player]["life"] - att_power <= 0:
+
+                print(f"☠️ KILLER BLOW ☠️")
+                sleep(1)
+                print(f"{players[defending_player].get('name').upper()} IS DEAD ‼️ ")
+                sleep(1)
+
+                # WINNER CONGRATULATIONS
+                print("\n")
+                congrats_string = f"🎈🎉🎊 Congratulations player {current_player + 1}!! 🎊🎉🎈\n"
+                print("🎈🎉🎊✨"*(len(congrats_string)//5))
+                if round == 1:
+                    congrats_string += f"You won after just {round} round!"
+                else:
+                    congrats_string += f"You won after {round} rounds!"
+                print(congrats_string)
+                is_gameover = True
+                break
+
+
+
+            print(f"{players[defending_player].get('life')} --> {players[defending_player].get('life') - att_power}")
             players[defending_player]["life"] -= att_power
             print("\n")
             sleep(0.8)
 
-            if players[defending_player]["life"] <= 0:
-                is_gameover = True
-                winner = current_player
 
-    print(f"Congratulations player {winner}!!\nYou won ater {round} rounds!")
 
-new_game()
-play_again = yes_no_question("Do you want to play again?")
+
+play_again = True
 
 while play_again:
     new_game()
+    print('-'*25)
     play_again = yes_no_question("Do you want to play again?")
 
 
