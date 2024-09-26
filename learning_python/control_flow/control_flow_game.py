@@ -171,18 +171,17 @@ def new_game():
         return  chosen_attack
 
     def reset_attacks():
-        if round%5 == 0:
-            for pl in players:
-                for att in pl.get("attacks"):
-                    att['used'] = False
-                    pl['attacks'][att.get('id')] = att
 
-            print(f"\n♻️ All attacks are now available again\n")
-            sleep(2)
+        for pl in players:
+            for att in pl.get("attacks"):
+                att['used'] = False
+                pl['attacks'][att.get('id')] = att
+
+        print(f"\n♻️ All attacks are now available again\n")
+        sleep(2)
 
     is_gameover = False
     round = 0
-    winner = None
     # ROUND
 
     while not is_gameover:
@@ -191,7 +190,8 @@ def new_game():
         print(f"ROUND {round}")
         sleep(0.5)
 
-        reset_attacks()
+        if (round - 1) % 4 == 0:
+            reset_attacks()
 
         for i in range(0,len(players)):
             # Show current status
@@ -252,7 +252,7 @@ def new_game():
                 # WINNER CONGRATULATIONS
                 print("\n")
                 congrats_string = f"🎈🎉🎊 Congratulations player {current_player + 1}!! 🎊🎉🎈\n"
-                print("🎈🎉🎊✨"*(len(congrats_string)//5))
+                print("🎈🎉🎊✨"*(len(congrats_string)//7))
                 if round == 1:
                     congrats_string += f"You won after just {round} round!"
                 else:
