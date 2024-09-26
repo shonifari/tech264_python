@@ -49,10 +49,11 @@ def new_game():
                 "name": name,
                 "life": life,
                 "attacks": [{
+                        "id":ii,
                         "name": att_name,
-                        "power": randint(10, 16)
-
-                    } for att_name in attacks_names
+                        "power": randint(10, 16),
+                        "used":False
+                    } for ii, att_name in enumerate(attacks_names)
                 ]
             }
             )
@@ -130,7 +131,7 @@ def new_game():
     if yes_no_question("\n🔔 Ready to start the fight?") == False:
         return
 
-    for i in range(0,5):
+    for n in ["🕔5️⃣","🕓4️⃣","🕒3️⃣","🕑2️⃣","🕐1️⃣"]:
         print(f"{5-i}...")
         sleep(1)
     print("🤜 FIGHT 🤛")
@@ -150,21 +151,34 @@ def new_game():
 
     def print_attacks(fighter):
         for i, att in enumerate(fighter.get("attacks")):
-            print(f"{i}. {att.get('name')} - {att.get('power')}")
+            print(f"{i}. {att.get('name')} - {att.get('power')}{' | (NOT AVAILABLE)' if att.get('used') else ''}")
 
     def choose_attack(fighter):
         chosen_attack = None
         valid = False
         while not valid:
             print_attacks(fighter)
-            choice = input("Choose attack (type the id): ")
-            if choice.isdigit() and int(choice) < len(fighter.get('attacks')):
-                chosen_attack = fighter.get('attacks')[int(choice)]
-                valid = True
+            chosen_id = input("💠 Choose attack (type the id): ")
+            if chosen_id.isdigit() and int(chosen_id) < len(fighter.get('attacks')):
+                chosen_attack = fighter.get('attacks')[int(chosen_id)]
+
+                if chosen_attack.get('used'):
+                    print(f"⚠️ This attack was already used. Choose another one.")
+                    sleep(0.8)
+                else:
+                    valid = True
 
         return  chosen_attack
 
+    def reset_attacks():
+        if round%5 == 0:
+            for pl in players:
+                for att in pl.get("attacks"):
+                    att['used'] = False
+                    pl['attacks'][att.get('id')] = att
 
+            print(f"\n♻️ All attacks are now available again\n")
+            sleep(2)
 
     is_gameover = False
     round = 0
@@ -177,19 +191,23 @@ def new_game():
         print(f"ROUND {round}")
         sleep(0.5)
 
+        reset_attacks()
+
         for i in range(0,len(players)):
             # Show current status
             print_life()
             sleep(0.8)
+
             current_player = i
             defending_player = 1 if i == 0 else 0
-
-
             print(f"Its {players[current_player].get('name')} (P{current_player + 1}) turn to attack.")
             sleep(0.3)
 
             if not is_player_2 and current_player == 1:
-                choosen_attack = choice(players[current_player].get("attacks"))
+
+                available_attacks = [ atts for atts in players[current_player].get("attacks") if not atts.get('used')]
+
+                choosen_attack = choice(available_attacks)
                 print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
             else:
                 # Choose attack
@@ -198,6 +216,12 @@ def new_game():
 
                 # Roll dice
                 input("🎲 Press enter to roll dice")
+
+            # SET ATTACK TO USED
+            choosen_attack['used'] = True
+            players[current_player]['attacks'][choosen_attack.get('id')] = choosen_attack
+
+
 
             dice_result = throw_dice()
             print(f"{players[current_player].get('name')} rolled 🎲 {dice_result}.")
