@@ -291,19 +291,11 @@ def new_game():
 
 if __name__ == '__main__':
 
-    a = 100
-    b = 30
-    for i in range(0, a-b+1):
-        print(f'\r{a - i}', end='')
-        sleep(0.5)
-
-
-    #
-    # play_again = True
-    # while play_again:
-    #     new_game()
-    #     print('-'*25)
-    #     play_again = yes_no_question("Do you want to play again?")
+    play_again = True
+    while play_again:
+        new_game()
+        print('-'*25)
+        play_again = yes_no_question("Do you want to play again?")
 
 
 
