@@ -25,23 +25,25 @@ fighters_names = ["🧝 ELf", "🥷 Ninja", "🧛 Vampire", "🧙 Wizard"]
 attacks_names = ["🗡️","🪄","🪓","🏹"]
 life = 75
 
-def yes_no_question(question):
-    output = None
-    while output is None:
+def yes_no_question(question : str):
+    '''Prompt player with the provided question'''
+    while True:
         answer = input(f"{question} y/n: ")
         if answer.lower() not in ["y", "n"]:
             print("⚠️ Respond only with y (Yes) or n (No)")
             sleep(0.8)
             continue
 
-        output = True if answer.lower() == "y" else False
-    return  output
+        return True if answer.lower() == "y" else False
+
 
 # NEW GAME
 def new_game():
+    '''Start a new game. Only breaks after winning or character selection'''
 
     fighters = []
 
+    # Initialise the fighters
     for i, name in enumerate(fighters_names):
         fighters.append(
             {
@@ -59,16 +61,21 @@ def new_game():
             )
 
 
-
     # If Player 2, let them pick the character/fighter they want. If CPU, assign a character/fighter randomly.
     def print_fighters():
+        '''Prints a list of available fighters'''
         print("SELECT A FIGHTER:")
+
+        # Get the lenght of longest name
+        longest_name_lenght = sorted([len(f.get('name')) for f in fighters])[-1]
+
         for fighter in fighters:
             avg_attack = sum([att.get("power") for att in fighter.get("attacks")]) / len(fighter.get("attacks"))
 
-            spaces = sorted([len(f.get('name')) for f in fighters])[-1]
-            spaces -= len(fighter.get('name'))
+            # Calculate spaces to print neatly
+            spaces = longest_name_lenght - len(fighter.get('name'))
 
+            #
             fighter_string = f"{fighter.get('id')}. {fighter.get('name').upper()} "
             fighter_string += " "*spaces
             fighter_string +=   f"|  🗡️ Avg att: {avg_attack:.2f} - 🛡️ Life: {fighter.get('life')}"
@@ -76,72 +83,71 @@ def new_game():
             print(fighter_string)
 
     def select_character():
-        choice = None
-        valid = False
-        while not valid:
+        '''Prompt the user to select a fighter and returns it'''
+        fighter = None
+        while True:
 
             print_fighters()
 
-            choice = input("\n🎮 Select a fighter by typing its id: ")
-            if not choice.isdigit():
+            fighter_id = input("\n🎮 Select a fighter by typing its id: ")
+
+            if not fighter_id.isdigit():
                 print("\n⚠️ ERROR: To select a fighter type it's id.\n")
                 sleep(0.8)
                 continue
 
-            choice = int(choice)
+            fighter_id = int(fighter_id)
 
-            if choice not in [f.get('id') for f in fighters]:
+            if fighter_id not in [f.get('id') for f in fighters]:
                 print(
-                    f"\n⚠️ ERROR: The id you selected ({choice}) is not part of the ids ({','.join([str(f.get('id')) for f in fighters])})\n")
+                    f"\n⚠️ ERROR: The id you selected ({fighter_id}) is not part of the ids ({','.join([str(f.get('id')) for f in fighters])})\n")
                 sleep(0.8)
                 continue
 
-            valid = True
+            fighter = [f for f in fighters if f.get('id') == fighter_id][0]
+            break
 
-        fighter = [f for f in fighters if f.get('id') == choice][0]
+
         print(f"💠 You have selected {fighter.get('name')}")
         return fighter
 
 
 
 
-
+    # Initialise players
     players = []
 
-
-    # CHARACHTER SELECTION
+    # P1 character selection
     p1_character = select_character()
     players.append(p1_character)
     fighters.remove(p1_character)
 
-
-    # Check for player 2
+    # Check for player 2 or set as CPU
     is_player_2 = yes_no_question("\n🎮 Add player to the game?")
-
-
     if is_player_2:
         players.append(select_character())
     else:
         players.append(choice(fighters))
 
-
-
     print(f"\n\nThe fight will be between:\n\t{players[0].get('name')} VS {players[1].get('name')}")
+    sleep(.8)
 
+
+    # Confirm start of fight
     if yes_no_question("\n🔔 Ready to start the fight?") == False:
         return
 
+    # Countodown
     for n in ["🕔5️⃣","🕓4️⃣","🕒3️⃣","🕑2️⃣","🕐1️⃣"]:
         print(n)
         sleep(1)
     print("🤜 FIGHT 🤛")
 
 
-
-    # The two Pokemon/fighters/characters need to fight.
-
+    # GAMEPLAY METHODS
 
     def print_life():
+        '''Prints the current life of each player'''
         string = f"{players[0].get('name')} - {players[0].get('life')}/{life} 🛡️\t"
         string += f" 🛡️ {players[1].get('life')}/{life} - {players[1].get('name')}\n"
         print(string)
@@ -150,28 +156,30 @@ def new_game():
         return randint(1,12)
 
     def print_attacks(fighter):
+        '''Prints a list of attacks of the provided fighter'''
         for i, att in enumerate(fighter.get("attacks")):
             print(f"{i}. {att.get('name')} - {att.get('power')}{' | (NOT AVAILABLE)' if att.get('used') else ''}")
 
     def choose_attack(fighter):
-        chosen_attack = None
-        valid = False
-        while not valid:
+        '''Prompt the player with the list of attacks of their fighter. Player selects one available '''
+
+        while True:
             print_attacks(fighter)
+
             chosen_id = input("💠 Choose attack (type the id): ")
             if chosen_id.isdigit() and int(chosen_id) < len(fighter.get('attacks')):
-                chosen_attack = fighter.get('attacks')[int(chosen_id)]
+                attack = fighter.get('attacks')[int(chosen_id)]
 
-                if chosen_attack.get('used'):
-                    print(f"⚠️ This attack was already used. Choose another one.")
-                    sleep(0.8)
-                else:
-                    valid = True
+                if not attack.get('used'):
+                    break
 
-        return  chosen_attack
+                print(f"⚠️ This attack was already used. Choose another one.")
+                sleep(0.8)
+
+        return  attack
 
     def reset_attacks():
-
+        '''Reset availability of every attack'''
         for pl in players:
             for att in pl.get("attacks"):
                 att['used'] = False
@@ -180,63 +188,70 @@ def new_game():
         print(f"\n♻️ All attacks are now available again\n")
         sleep(2)
 
+
+    # GAMEPLAY
     is_gameover = False
     round = 0
-    # ROUND
 
     while not is_gameover:
         round += 1
+
         print('_'*25)
         print(f"ROUND {round}")
         sleep(0.5)
 
-        if (round - 1) % 4 == 0:
+        # Check if last round is multiple of number of attacks, then there are no more available attacks
+        if (round - 1) % len(attacks_names) == 0:
             reset_attacks()
 
+        # PLAYERS TURN
         for i in range(0,len(players)):
+
             # Show current status
             print_life()
             sleep(0.8)
 
+            # Set which player is attacking/defending
             current_player = i
             defending_player = 1 if i == 0 else 0
             print(f"Its {players[current_player].get('name')} (P{current_player + 1}) turn to attack.")
             sleep(0.3)
 
+            # If playing against CPU
             if not is_player_2 and current_player == 1:
                 sleep(0.5)
                 available_attacks = [ atts for atts in players[current_player].get("attacks") if not atts.get('used')]
-
-                choosen_attack = choice(available_attacks)
-                print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
+                chosen_attack = choice(available_attacks)
+                print(f"{players[current_player].get('name')} wants to use {chosen_attack.get('name')}:{chosen_attack.get('power')}")
                 sleep(0.8)
 
 
             else:
                 # Choose attack
-                choosen_attack = choose_attack(players[current_player])
-                print(f"{players[current_player].get('name')} wants to use {choosen_attack.get('name')}:{choosen_attack.get('power')}")
+                chosen_attack = choose_attack(players[current_player])
+                print(f"{players[current_player].get('name')} wants to use {chosen_attack.get('name')}:{chosen_attack.get('power')}")
 
                 # Roll dice
                 input("🎲 Press enter to roll dice")
 
-            # SET ATTACK TO USED
-            choosen_attack['used'] = True
-            players[current_player]['attacks'][choosen_attack.get('id')] = choosen_attack
+            # Set the attack to used
+            chosen_attack['used'] = True
+            players[current_player]['attacks'][chosen_attack.get('id')] = chosen_attack
 
 
-
+            # Roll the dice
             dice_result = throw_dice()
             print(f"{players[current_player].get('name')} rolled 🎲 {dice_result}.")
             sleep(0.2)
-            att_power = choosen_attack.get('power') * dice_result // 12
+
+            # Calculate attack power
+            att_power = chosen_attack.get('power') * dice_result // 12
             is_power_higher = False
             print(f"{players[current_player].get('name')} attack power {'increased' if is_power_higher else 'decreased'} and its now: {att_power} {'📈' if is_power_higher else '📉'}")
 
+            # Show battle
             print('\n')
             sleep(0.7)
-
-
             print("💥")
             sleep(0.8)
             print(f"{players[defending_player].get('name')} was hit with a powerful attack")
@@ -244,7 +259,7 @@ def new_game():
 
 
 
-
+            # Check if defending player died
             if players[defending_player]["life"] - att_power <= 0:
 
                 print(f"☠️ KILLER BLOW ☠️")
@@ -261,25 +276,34 @@ def new_game():
                 else:
                     congrats_string += f"You won after {round} rounds!"
                 print(congrats_string)
+
+                # Terminate
                 is_gameover = True
                 break
 
 
-
+            # Change defending player's life
             print(f"{players[defending_player].get('life')} --> {players[defending_player].get('life') - att_power}")
             players[defending_player]["life"] -= att_power
             print("\n")
             sleep(0.8)
 
 
+if __name__ == '__main__':
+
+    a = 100
+    b = 30
+    for i in range(0, a-b+1):
+        print(f'\r{a - i}', end='')
+        sleep(0.5)
 
 
-play_again = True
-
-while play_again:
-    new_game()
-    print('-'*25)
-    play_again = yes_no_question("Do you want to play again?")
+    #
+    # play_again = True
+    # while play_again:
+    #     new_game()
+    #     print('-'*25)
+    #     play_again = yes_no_question("Do you want to play again?")
 
 
 
@@ -290,11 +314,18 @@ while play_again:
 # Bonus: Want to play again?
 #
 # Note: No Pygame or Turtle allowed. CLI only.
-#
-#
-#
-#
-#
+
+
+
+
+
+
+
+
+
+
+
+
 # Interactive quiz
 #
 # Create and interactive quiz game using Python.
