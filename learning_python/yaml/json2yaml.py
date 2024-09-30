@@ -50,7 +50,7 @@ if len(sys.argv) > 1:
 # No source file specified
 else:
     print("ERROR: No JSON file was specified")
-    print("Usage: json2yaml.py <source_file.json> <target_file.yaml>")
+    print("Usage: json2yaml.py <source_file.json_folder> <target_file.yaml>")
 
 
 
