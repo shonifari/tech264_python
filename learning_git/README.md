@@ -76,6 +76,14 @@ The -u flag sets the upstream tracking reference, meaning your local main branch
 git push -u origin main
 ```
 
+## How to ignore sensitive files from being commited to github?'
+* anything sensitive like passwords, credentials etc
+* really large files/folders that we don't need to be push to a remote repo
+* some files/folders related to building/running eg: /bin, /out, etc
+* Hidden system files
+Solution = .gitignore files
+
+
 ## Danger: If the sensitive file is still accessible in a previous commit
  
 SOLUTION:
@@ -87,3 +95,4 @@ git reset
   > 1. Remove GitHub repo (Now safe!)
   > 2. Remove sensitive from your local file
   > 3. Remove .git folder from your local repo
+  > 4. Reset any compromised credentials 
