@@ -10,9 +10,9 @@
 # Be as creative as you like after this. Can you incorporate different abilities/stats etc.?
 # Try and work collaboratively on the one repo using Git
 # To deliver: Give it your best shot! Share your code (message your Ramon + Luke directly, NOT a message in the main chat) by COB (17:00)
-from time import sleep
 import requests
 import json
+from time import sleep
 from random import choice, randint
 
 LIFE = 100
@@ -20,13 +20,14 @@ LIFE = 100
 
 # Get the list of pokemon from the API
 url = 'https://pokeapi.co/api/v2/pokemon/'
+url = f'https://pokeapi.co/api/v2/pokemon/?offset={randint(20,200)}&limit=20'
 response = requests.get(url)
+print(response.content)
 pokemon_list = json.loads(response.text)['results']
 
 for pokemon in pokemon_list:
     pokemon_id = pokemon['url'].split('/')[-2]
-    print(f"{pokemon_id}. {pokemon['name']}")
-
+    print(f"{pokemon_id}. {pokemon['name'].capitalize()}")
 
 
 # Ask the user to choose a pokemon
@@ -43,10 +44,15 @@ def init_pokemon(pokemon_id:str)-> dict:
     response = requests.get(url)
     pokemon_data = json.loads(response.text)
 
+    # for key in pokemon_data['stats']:
+    #     print(key)
+    #
+
+
     # ID
     pokemon['id'] = pokemon_data['id']
     # Name
-    pokemon['name'] = pokemon_data['name']
+    pokemon['name'] = pokemon_data['name'].capitalize()
     # to format height and weight properly
     height = int(pokemon_data['height'])
     weight = int(pokemon_data['weight'])
@@ -61,8 +67,12 @@ def init_pokemon(pokemon_id:str)-> dict:
     while len(attacks) < 4:
         chosen_att = choice(pokemon_data['moves'])
         if not chosen_att['move']['url'] in [att['url'] for att in attacks]:
+
+            name = chosen_att['move']['name']
+            name = ' '.join([name_part.capitalize() for name_part in name.split('-')])
+
             attacks.append({
-                'name':chosen_att['move']['name'],
+                'name':name,
                 'url': chosen_att['move']['url'],
                 "power": randint(15, 20),
                 "used": False
@@ -78,6 +88,35 @@ def print_life():
     string += f" 🛡️ {players[1].get('life')}/{LIFE} - {players[1].get('name')}\n"
     print(string)
 
+def print_player_damages(player, damage):
+    '''A'''
+    player_life = player.get('life')
+    icons = ["🟢", "🟡", "🟠", "🔴"]
+
+    for hit in range(0, damage + 1):
+
+        current_life = player_life - hit
+        current_life_percentage = current_life * 100 / LIFE
+        icon = ""
+
+        if current_life_percentage >= 75:
+            icon = "🟢"
+        elif current_life_percentage >= 50:
+            icon = "🟡"
+        elif current_life_percentage >= 25:
+            icon = "🟠"
+        elif current_life_percentage >= 0:
+            icon = "🔴"
+        else:
+            icon = "⚫"
+
+
+        print(f"\r{players[defending_player].get('life')} --> {current_life} {icon} ({current_life_percentage:.2f}%)", end='')
+        sleep(0.2)
+
+
+
+
 players = [
     # Pokemon user 1
     init_pokemon(user_choice),
@@ -86,6 +125,13 @@ players = [
     init_pokemon(str(randint(1,200)))
 
     ]
+
+print(f"CPU chose {players[1].get('name')}")
+sleep(0.8)
+
+print(f"The fight will be between:\n{players[0].get('name')}   vs   {players[1].get('name')}")
+print(1)
+
 
 # GAMEPLAY
 is_gameover = False
@@ -115,9 +161,29 @@ while not is_gameover:
             user_choice = int(input("Choose an attack: "))
             chosen_attack = players[current_player]['attacks'][user_choice]
 
-        att_power = chosen_attack['power']
-        # Check if defending player died
 
+        print(f"{players[current_player].get('name')} wants to use {chosen_attack.get('name')}:{chosen_attack.get('power')}")
+        att_power = chosen_attack['power']
+
+
+        # Check if defending player died
+        # BATTLE
+        # Show battle
+        print('\n')
+        sleep(0.7)
+        for boom in "💥💥💥":
+            print(boom, end='')
+            sleep(0.7)
+        print()
+        sleep(0.8)
+        print(f"{players[defending_player].get('name')} was hit with a powerful attack")
+        sleep(0.8)
+
+
+
+
+        # PLAYER IS DEAD
+        # Calculate if the player died
         if players[defending_player]["life"] - att_power <= 0:
 
             print(f"☠️ KILLER BLOW ☠️")
@@ -131,16 +197,19 @@ while not is_gameover:
             print("🎈🎉🎊✨" * (len(congrats_string) // 7))
             print(congrats_string)
 
+
             if round == 1:
-                congrats_string += f"You won after just {round} round!"
+                print(f"You won after just {round} round!")
             else:
-                congrats_string += f"You won after {round} rounds!"
-            print(congrats_string)
+                print(f"You won after {round} rounds!")
 
             # Terminate
             is_gameover = True
             break
 
+
+        # Change defending player's life
+        print_player_damages(players[defending_player], att_power)
         players[defending_player]["life"] -= att_power
         print("\n")
         sleep(0.8)
