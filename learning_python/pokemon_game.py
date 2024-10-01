@@ -3,26 +3,25 @@
 # Recommended: Understand the Pokemon lookup program first (code below) to fully understand accessing data from the API.
 # The Pokémon data MUST come from the PokeApi
 # Get random Pokémon for at least the CPU (Player can be chosen or random)
-
-
 # Pokémon should fight and a winner should be declared in some way
 # No Pygame. Focus on interacting with the API.
 # Be as creative as you like after this. Can you incorporate different abilities/stats etc.?
 # Try and work collaboratively on the one repo using Git
 # To deliver: Give it your best shot! Share your code (message your Ramon + Luke directly, NOT a message in the main chat) by COB (17:00)
+
 import requests
 import json
 from time import sleep
 from random import choice, randint
 
-LIFE = 100
+LIFE = 30
 
 
 # Get the list of pokemon from the API
-url = 'https://pokeapi.co/api/v2/pokemon/'
-url = f'https://pokeapi.co/api/v2/pokemon/?offset={randint(20,200)}&limit=20'
+# url = 'https://pokeapi.co/api/v2/pokemon/'
+url = f'https://pokeapi.co/api/v2/pokemon/?offset={randint(20,200)}&limit=10'
+
 response = requests.get(url)
-print(response.content)
 pokemon_list = json.loads(response.text)['results']
 
 for pokemon in pokemon_list:
@@ -126,11 +125,11 @@ players = [
 
     ]
 
-print(f"CPU chose {players[1].get('name')}")
+print(f"\nCPU chose {players[1].get('name')}")
 sleep(0.8)
 
-print(f"The fight will be between:\n{players[0].get('name')}   vs   {players[1].get('name')}")
-print(1)
+print(f"\nThe fight will be between:\n{players[0].get('name')}   vs   {players[1].get('name')}")
+sleep(1)
 
 
 # GAMEPLAY
@@ -169,7 +168,6 @@ while not is_gameover:
         # Check if defending player died
         # BATTLE
         # Show battle
-        print('\n')
         sleep(0.7)
         for boom in "💥💥💥":
             print(boom, end='')
