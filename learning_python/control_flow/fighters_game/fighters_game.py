@@ -1,30 +1,30 @@
-
 # The options
 #
 # Battle Game
 # Dice roll game
 # Interactive quiz game
 # All the games should use the CLI (not anything like the pygame library).
-#
-#
-#
-#
-#
+
+
 # Battle game
-#
+
 # Make a 2 player battle game using Python.
 
 
 # Player selects a character/fighter (from 4-6) or gets one assigned to them randomly.
 
+# If Player 2, let them pick the character/fighter they want. If CPU, assign a character/fighter randomly.
+
 from random import  randint, choice
 from time import  sleep
 
 # Define fighters
-fighters_names = ["🧝 ELf", "🥷 Ninja", "🧛 Vampire", "🧙 Wizard"]
-attacks_names = ["🗡️","🪄","🪓","🏹"]
-life = 75
+FIGHTERS_NAMES = ["🧝 ELf", "🥷 Ninja", "🧛 Vampire", "🧙 Wizard"]
+ATTACKS_NAMES = ["🗡️", "🪄", "🪓", "🏹"]
+LIFE = 75
 
+
+# METHODS
 def yes_no_question(question : str):
     '''Prompt player with the provided question'''
     while True:
@@ -38,7 +38,6 @@ def yes_no_question(question : str):
 
         return True if answer.lower() == "y" else False
 
-
 def sequence_printing(string:str, break_line = True):
     printed = ""
     for ch in string:
@@ -49,11 +48,12 @@ def sequence_printing(string:str, break_line = True):
     if break_line:
         print()
 
-def print_warning(warn_string, repetitions = 10, speed = 0.25):
-    for i in range(0, repetitions):
+def print_warning(warn_string, repetitions = 5, speed = 0.25):
+    for i in range(0, repetitions*2):
         print(f"\r{'' if i % 2 == 0 else warn_string}", end='')
         sleep(speed)
     print()
+
 
 
 
@@ -64,36 +64,38 @@ def new_game():
     fighters = []
 
     # Initialise the fighters
-    for i, name in enumerate(fighters_names):
+    for i, name in enumerate(FIGHTERS_NAMES):
         fighters.append(
             {
                 "id": i,
                 "name": name,
-                "life": life,
+                "life": LIFE,
                 "attacks": [{
                         "id":ii,
                         "name": att_name,
                         "power": randint(10, 16),
                         "used":False
-                    } for ii, att_name in enumerate(attacks_names)
+                    } for ii, att_name in enumerate(ATTACKS_NAMES)
                 ]
             }
             )
 
 
-    # If Player 2, let them pick the character/fighter they want. If CPU, assign a character/fighter randomly.
+
+
+
     def print_fighters():
         '''Prints a list of available fighters'''
         sequence_printing("SELECT A FIGHTER:")
 
-        # Get the lenght of longest name
-        longest_name_lenght = sorted([len(f.get('name')) for f in fighters])[-1]
+        # Get the length of longest name
+        longest_name_length = sorted([len(f.get('name')) for f in fighters])[-1]
 
         for fighter in fighters:
             avg_attack = sum([att.get("power") for att in fighter.get("attacks")]) / len(fighter.get("attacks"))
 
             # Calculate spaces to print neatly
-            spaces = longest_name_lenght - len(fighter.get('name'))
+            spaces = longest_name_length - len(fighter.get('name'))
 
             #
             fighter_string = f"{fighter.get('id')}. {fighter.get('name').upper()} "
@@ -175,8 +177,8 @@ def new_game():
 
     def print_life():
         '''Prints the current life of each player'''
-        string = f"{players[0].get('name')} - {players[0].get('life')}/{life} 🛡️\t"
-        string += f" 🛡️ {players[1].get('life')}/{life} - {players[1].get('name')}\n"
+        string = f"{players[0].get('name')} - {players[0].get('life')}/{LIFE} 🛡️\t"
+        string += f" 🛡️ {players[1].get('life')}/{LIFE} - {players[1].get('name')}\n"
         print(string)
 
     def throw_dice():
@@ -228,7 +230,7 @@ def new_game():
         for hit in range(0, damage + 1):
 
             current_life = player_life - hit
-            current_life_percentage = current_life  * 100 / life
+            current_life_percentage = current_life * 100 / LIFE
             icon = ""
 
             if current_life_percentage >= 75:
@@ -258,7 +260,7 @@ def new_game():
         sleep(0.5)
 
         # Check if last round is multiple of number of attacks, then there are no more available attacks
-        if (round - 1) % len(attacks_names) == 0:
+        if (round - 1) % len(ATTACKS_NAMES) == 0:
             reset_attacks()
 
         # PLAYERS TURN
@@ -351,9 +353,6 @@ def new_game():
             players[defending_player]["life"] -= att_power
             print("\n")
             sleep(0.8)
-
-
-
 
 if __name__ == '__main__':
 

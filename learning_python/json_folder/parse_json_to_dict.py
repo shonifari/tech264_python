@@ -5,7 +5,7 @@
 #
 # Steps:
 #
-# Create a new file servers.json and add this JSON to it:
+# Create a new file servers.json_folder and add this JSON to it:
 #
 # {
 # 	"server1": {

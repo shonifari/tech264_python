@@ -170,7 +170,5 @@ print(division(a, b))
 
 # DIVISION
 def division(num1: int = 2, num2: int = 5) -> float:
-    '''This function divides numbers
-     **BOLD**'''
-
+    '''This function divides numbers **BOLD**'''
     return num1 / num2

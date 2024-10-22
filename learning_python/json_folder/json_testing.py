@@ -36,7 +36,7 @@ with open('servers.json', 'r') as json_file:
     print(data)  # Print to verify the content
 # Extra guidance:
 #
-# Use the json library
+# Use the json_folder library
 # Write any other code necessary to test things converted correctly
 # Use Gen AI (ChatGPT or Google Gemini) to help speed up these tasks as much as you need to.  However what's important is that:
 # You made sure you come up with a simple version of code that you understand rather than some complex code it might generate for you
